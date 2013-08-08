@@ -194,7 +194,7 @@ if __name__ == '__main__':
     line_count = 0
     for line in open(dict_file):
         line_count += 1
-        a = get_addr(gen_eckey(passphrase=line))
+        a = get_addr(gen_eckey(passphrase=line.rstrip()))
         address = a[0]
         received_bitcoins = urllib2.urlopen("http://%s:%s/chain/%s/q/getreceivedbyaddress/%s" % (abe_server, abe_port, abe_chain, address)).read()
         if(received_bitcoins != "0"):
