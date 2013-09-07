@@ -4,6 +4,7 @@ import ctypes
 import ctypes.util
 import urllib2
 import sys
+import codecs
 
 ssl = ctypes.cdll.LoadLibrary (ctypes.util.find_library ('ssl') or 'libeay32')
 
