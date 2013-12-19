@@ -199,7 +199,13 @@ if __name__ == '__main__':
         a = get_addr(gen_eckey(passphrase=line))
         address = a[0]
         private_address = a[1]
-        received_bitcoins = urllib2.urlopen("http://%s:%s/chain/%s/q/getreceivedbyaddress/%s" % (abe_server, abe_port, abe_chain, address)).read()
+        try:
+            url = "http://%s:%s/chain/%s/q/getreceivedbyaddress/%s" % (abe_server, abe_port, abe_chain, address)
+            received_bitcoins = urllib2.urlopen(url).read()
+        except urllib2.URLError:
+            print "Request failed for word '%s' to URL '%s'" % (line, url)
+            continue
+			
         if(received_bitcoins != "0"):
             msg = "Found address %s using dictionary word %s which has received %s bitcoins. Private key: %s\n" % (address, line.rstrip(), received_bitcoins, private_address)
             print msg
