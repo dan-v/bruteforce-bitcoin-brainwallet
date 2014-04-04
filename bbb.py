@@ -13,7 +13,7 @@ def main():
                         help='Blockchain lookup type ({}|{})'
                         .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE), required=True)
     parser.add_argument('-d', action='store', dest='dict_file',
-                        help='Dictionary file (one word per line)', required=True)
+                        help='Dictionary file (e.g. dictionary.txt)', required=True)
     parser.add_argument('-o', action='store', dest='output_file',
                         help='Output file (e.g. output.txt)', required=True)
     parser.add_argument('-s', action='store', dest='server',

@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import requests
 import logging
+import time
 
 
 class BaseBlockExplorer(object):
@@ -95,6 +96,8 @@ class BlockchainInfo(BaseBlockExplorer):
 
     def __init__(self):
         BaseBlockExplorer.__init__(self)
+        self._api_limit_seconds = 10
+        logging.info("Note there is a {} second wait between each API call to respect posted limits".format(self._api_limit_seconds))
         self._base_url = "http://blockchain.info"
         self._base_url_received = "{}/q/getreceivedbyaddress".format(self._base_url)
         self._base_url_balance = "{}/q/addressbalance".format(self._base_url)
@@ -106,9 +109,11 @@ class BlockchainInfo(BaseBlockExplorer):
         return BaseBlockExplorer.close_session(self)
 
     def get_balance(self, public_address):
+        time.sleep(self._api_limit_seconds)
         balance = BaseBlockExplorer.get_balance(self, public_address)
         return self.satoshi_to_btc(balance)
 
     def get_received(self, public_address):
+        time.sleep(self._api_limit_seconds)
         balance = BaseBlockExplorer.get_received(self, public_address)
         return self.satoshi_to_btc(balance)

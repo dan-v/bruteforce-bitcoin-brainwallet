@@ -45,11 +45,12 @@ python bbb.py -t abe -d dictionary.txt -o found.txt -s 127.0.0.1 -p 2751 -c Bitc
 #Blockchain.info Example
 ```
 python bbb.py -t blockchaininfo -d dictionary.txt -o found.txt
-2014-04-03 21:25:45,568 INFO   line 59   Opening session for blockchaininfo
-2014-04-03 21:25:45,568 INFO   line 17   Opening new session to http://blockchain.info
-2014-04-03 21:25:45,591 INFO   line 171  Starting new HTTP connection (1): blockchain.info
-2014-04-03 21:25:45,817 INFO   line 63   Opening dictionary file dictionary.txt for reading
-2014-04-03 21:25:45,817 INFO   line 72   Opening output file found.txt for writing
-2014-04-03 21:25:45,818 INFO   line 75   dictionary word, received bitcoins, wallet address, private address, current balance
-2014-04-03 21:25:48,403 INFO   line 101  a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
+2014-04-03 21:38:48,893 INFO   line 100  Note there is a 10 second wait between each API call to respect posted limits
+2014-04-03 21:38:48,893 INFO   line 59   Opening session for blockchaininfo
+2014-04-03 21:38:48,893 INFO   line 18   Opening new session to http://blockchain.info
+2014-04-03 21:38:48,903 INFO   line 171  Starting new HTTP connection (1): blockchain.info
+2014-04-03 21:38:49,672 INFO   line 63   Opening dictionary file dictionary.txt for reading
+2014-04-03 21:38:49,673 INFO   line 72   Opening output file found.txt for writing
+2014-04-03 21:38:49,673 INFO   line 75   dictionary word, received bitcoins, wallet address, private address, current balance
+2014-04-03 21:40:02,313 INFO   line 101  a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
 ```
