@@ -1,6 +1,7 @@
-from abc import ABCMeta,abstractmethod
+from abc import ABCMeta, abstractmethod
 import requests
 import logging
+
 
 class BaseBlockExplorer(object):
     __metaclass__ = ABCMeta
@@ -17,7 +18,8 @@ class BaseBlockExplorer(object):
         self.session = requests.Session()
         open_session = self.session.get(self._base_url)
         if open_session.status_code != requests.codes.ok:
-            raise Exception("Error: Failed to open connection to {}. Error: {}".format(self._base_url, open_session.text))
+            raise Exception("Error: Failed to open connection to {}. Error: {}".format(self._base_url,
+                                                                                       open_session.text))
 
     @abstractmethod
     def close_session(self):
@@ -49,30 +51,31 @@ class BaseBlockExplorer(object):
     def text_to_float(text):
         try:
             return float(text)
-        except Exception as e:
+        except Exception:
             logging.warning("Failed to convert string {} to float".format(text))
-            return 0
+            return None
 
     @staticmethod
     def satoshi_to_btc(value):
         try:
-            return (value / 100000000.00000000)
-        except Exception as e:
+            return value / 100000000.00000000
+        except Exception:
             logging.warning("Failed to convert value '{}' to BTC".format(value))
-            return 0
+            return None
 
 
 class Abe(BaseBlockExplorer):
     STRING_TYPE = "abe"
 
     def __init__(self, server, port, chain):
+        BaseBlockExplorer.__init__(self)
         self.server = server
         self.port = port
         self.chain = chain
         self.session = None
         self._base_url = "http://{}:{}".format(self.server, self.port)
         self._base_url_received = "{}/chain/{}/q/getreceivedbyaddress".format(self._base_url, self.chain)
-        self._base_url_balance= "{}/chain/{}/q/addressbalance".format(self._base_url, self.chain)
+        self._base_url_balance = "{}/chain/{}/q/addressbalance".format(self._base_url, self.chain)
 
     def open_session(self):
         return BaseBlockExplorer.open_session(self)
@@ -91,10 +94,10 @@ class BlockchainInfo(BaseBlockExplorer):
     STRING_TYPE = "blockchaininfo"
 
     def __init__(self):
-        self.session = None
+        BaseBlockExplorer.__init__(self)
         self._base_url = "http://blockchain.info"
         self._base_url_received = "{}/q/getreceivedbyaddress".format(self._base_url)
-        self._base_url_balance= "{}/q/addressbalance".format(self._base_url)
+        self._base_url_balance = "{}/q/addressbalance".format(self._base_url)
 
     def open_session(self):
         return BaseBlockExplorer.open_session(self)

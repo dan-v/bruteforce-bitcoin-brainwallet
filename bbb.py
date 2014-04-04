@@ -2,12 +2,13 @@ import codecs
 import sys
 import argparse
 import logging
-from blockchain import Abe,BlockchainInfo
-from brainwallet import BrainWallet
+from lib.blockchain import Abe, BlockchainInfo
+from lib.brainwallet import BrainWallet
+
 
 def main():
+    # Script argument parsing
     parser = argparse.ArgumentParser(description='A script to perform bruteforce dictionary attacks on brainwallets.')
-
     parser.add_argument('-t', action='store', dest='type',
                         help='Blockchain lookup type ({}|{})'
                         .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE), required=True)
@@ -16,13 +17,12 @@ def main():
     parser.add_argument('-o', action='store', dest='output_file',
                         help='Output file (e.g. output.txt)', required=True)
     parser.add_argument('-s', action='store', dest='server',
-                        help='Abe host address (e.g. localhost)')
+                        help='Abe server address (e.g. localhost)')
     parser.add_argument('-p', action='store', dest='port',
                         help='Abe port (e.g. 2751)')
     parser.add_argument('-c', action='store', dest='chain',
                         help='Abe chain string (e.g. Bitcoin)')
     parser.add_argument('--version', action='version', version='%(prog)s 1.1')
-
     args = parser.parse_args()
 
     # Setup logging
@@ -56,18 +56,24 @@ def main():
         sys.exit(1)
 
     # Open session
+    logging.info("Opening session for {}".format(args.type))
     blockexplorer.open_session()
 
     # Open dictionary file for reading
+    logging.info("Opening dictionary file {} for reading".format(args.dict_file))
     try:
-        f_dictionary = codecs.open(args.dict_file,'r','utf8')
+        f_dictionary = codecs.open(args.dict_file, 'r', 'utf8')
     except Exception as e:
         logging.error("Failed to open dictionary file {}. Error: {}".format(args.dict_file, e.args))
         sys.exit(1)
 
     # Open output file for found addresses
+    file_header = 'dictionary word, received bitcoins, wallet address, private address, current balance'
+    logging.info("Opening output file {} for writing".format(args.output_file))
     try:
-        f_found_addresses = codecs.open(args.output_file,'w','utf8')
+        f_found_addresses = codecs.open(args.output_file, 'w', 'utf8')
+        logging.info(file_header)
+        f_found_addresses.writelines(file_header + '\n')
     except Exception as e:
         logging.error("Failed to open output file {}. Error: {}".format(args.found_file, e.args))
         sys.exit(1)
@@ -90,10 +96,10 @@ def main():
         current_balance = blockexplorer.get_balance(brain_wallet.address)
 
         # Output results
-        f_found_addresses.write("{}:{}:{}:{}\n".format(dictionary_word, brain_wallet.address, brain_wallet.private_key,
-                                                       current_balance))
-        logging.info("Found {} with received bitcoin total of {:.8f} using word {}. Current balance: {:.8f}"
-              .format(brain_wallet.address, received_bitcoins, dictionary_word, current_balance))
+        output = '{},{:.8f},{},{},{:.8f}'.format(dictionary_word, received_bitcoins, brain_wallet.address,
+                                                    brain_wallet.private_key, current_balance)
+        logging.info(output)
+        f_found_addresses.write(output + '\n')
 
     # Close files and connection
     blockexplorer.close_session()
