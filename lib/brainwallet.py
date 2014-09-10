@@ -14,4 +14,5 @@ class BrainWallet:
             self.public_key = keypair.public_key()
             self.private_key = keypair.private_key()
         except Exception as e:
-            logging.warning("Failed to generate keypair for passphrase '{}'. Error: {}".format(passphrase, e.args))
+            logging.warning(u"Failed to generate keypair for passphrase '{}'. Error: {}".format(passphrase, e.args))
+            raise

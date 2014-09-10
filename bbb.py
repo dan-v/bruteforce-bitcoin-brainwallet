@@ -1,10 +1,11 @@
 import codecs
+import io
 import sys
 import argparse
 import logging
+import time
 from lib.blockchain import Abe, BlockchainInfo
 from lib.brainwallet import BrainWallet
-
 
 def main():
     # Script argument parsing
@@ -59,19 +60,34 @@ def main():
     logging.info("Opening session for {}".format(args.type))
     blockexplorer.open_session()
 
+    # Open dictionary file and validate encoding
+    dictionary_encoding = "utf-8"
+    logging.info("Opening dictionary file {} and validating encoding is {}".format(args.dict_file, dictionary_encoding))
+    try:
+        f_dictionary = io.open(args.dict_file, 'rt', encoding=dictionary_encoding)
+        f_dictionary.read(4096)
+        f_dictionary.close()
+    except Exception as e:
+        logging.error("Failed to open dictionary file {}. Make sure file is {} encoded.".format(
+                        args.dict_file, dictionary_encoding))
+        sys.exit(1)
+
     # Open dictionary file for reading
     logging.info("Opening dictionary file {} for reading".format(args.dict_file))
     try:
-        f_dictionary = codecs.open(args.dict_file, 'r', 'utf8')
+        # Open file for reading
+        logging.info("Opening file with encoding {}".format(dictionary_encoding))
+        f_dictionary = io.open(args.dict_file, 'rt', encoding=dictionary_encoding)
     except Exception as e:
-        logging.error("Failed to open dictionary file {}. Error: {}".format(args.dict_file, e.args))
+        logging.error("Failed to open dictionary file {}. Error: {}".format(
+                        args.dict_file, e.args))
         sys.exit(1)
 
     # Open output file for found addresses
     file_header = 'dictionary word, received bitcoins, wallet address, private address, current balance'
     logging.info("Opening output file {} for writing".format(args.output_file))
     try:
-        f_found_addresses = codecs.open(args.output_file, 'w', 'utf8')
+        f_found_addresses = codecs.open(args.output_file, 'w', dictionary_encoding)
         logging.info(file_header)
         f_found_addresses.writelines(file_header + '\n')
     except Exception as e:
@@ -84,8 +100,13 @@ def main():
         if not dictionary_word:
             continue
 
+        logging.info(u"Checking brainwallet '%s'" % dictionary_word)
+
         # Create brainwallet
-        brain_wallet = BrainWallet(dictionary_word)
+        try:
+            brain_wallet = BrainWallet(dictionary_word)
+        except Exception as e:
+            continue
 
         # Get received bitcoins
         received_bitcoins = blockexplorer.get_received(brain_wallet.address)
@@ -93,10 +114,23 @@ def main():
             continue
 
         # Get current balance
-        current_balance = blockexplorer.get_balance(brain_wallet.address)
+        retry = 0
+        retry_count = 5
+        sleep_seconds = 5
+        while retry < retry_count:
+            current_balance = blockexplorer.get_balance(brain_wallet.address)
+            if current_balance == None:
+                logging.warning("Failed to get proper response for balance. Retry in {} seconds..".format(sleep_seconds))
+                time.sleep(sleep_seconds);
+                retry += 1
+            else:
+                break
+        if retry == retry_count:
+            logging.error("Failed to get response for balance after {} retries. Skipping.".format(retry_count))
+            continue
 
         # Output results
-        output = '{},{:.8f},{},{},{:.8f}'.format(dictionary_word, received_bitcoins, brain_wallet.address,
+        output = 'Found used brainwallet: {},{:.8f},{},{},{:.8f}'.format(dictionary_word, received_bitcoins, brain_wallet.address,
                                                     brain_wallet.private_key, current_balance)
         logging.info(output)
         f_found_addresses.write(output + '\n')
