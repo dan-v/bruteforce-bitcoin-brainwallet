@@ -100,7 +100,9 @@ def main():
         if not dictionary_word:
             continue
 
-        logging.info(u"Checking brainwallet '%s'" % dictionary_word)
+        # Print each word since this is rate limited
+        if args.type == BlockchainInfo.STRING_TYPE:
+            logging.info(u"Checking brainwallet '%s'" % dictionary_word)
 
         # Create brainwallet
         try:
@@ -109,22 +111,36 @@ def main():
             continue
 
         # Get received bitcoins
-        received_bitcoins = blockexplorer.get_received(brain_wallet.address)
+        retry = 0
+        retry_count = 6
+        sleep_seconds = 10
+        while retry < retry_count:
+            try:
+                received_bitcoins = blockexplorer.get_received(brain_wallet.address)
+                break
+            except Exception as e:
+                logging.warning("Failed to get proper response for received bitcoins. Retry in {} seconds.".format(sleep_seconds))
+                time.sleep(sleep_seconds)
+                retry += 1
+        if retry == retry_count:
+            logging.error("Failed to get response for received bitcoins after {} retries. Skipping.".format(retry_count))
+            continue
         if received_bitcoins == 0:
+            logging.debug("Received bitcoins is zero.. moving on")
             continue
 
         # Get current balance
         retry = 0
         retry_count = 5
-        sleep_seconds = 5
+        sleep_seconds = 15
         while retry < retry_count:
-            current_balance = blockexplorer.get_balance(brain_wallet.address)
-            if current_balance == None:
-                logging.warning("Failed to get proper response for balance. Retry in {} seconds..".format(sleep_seconds))
-                time.sleep(sleep_seconds);
-                retry += 1
-            else:
+            try:
+                current_balance = blockexplorer.get_balance(brain_wallet.address)
                 break
+            except Exception as e:
+                logging.warning("Failed to get proper response for balance. Retry in {} seconds.".format(sleep_seconds))
+                time.sleep(sleep_seconds)
+                retry += 1
         if retry == retry_count:
             logging.error("Failed to get response for balance after {} retries. Skipping.".format(retry_count))
             continue

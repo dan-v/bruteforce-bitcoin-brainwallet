@@ -35,7 +35,11 @@ class BaseBlockExplorer(object):
             raise Exception("Error: Need to open_session first before executing get_received")
         received_url = "{}/{}".format(self._base_url_received, public_address)
         bitcoins_received_text = self.session.get(received_url).text
-        bitcoins_received = self.text_to_float(bitcoins_received_text)
+        try:
+            bitcoins_received = self.text_to_float(bitcoins_received_text)
+        except Exception as e:
+            logging.error("Got invalid received bitcoins response: '{}'".format(bitcoins_received_text))
+            raise
         return bitcoins_received
 
     @abstractmethod
@@ -45,7 +49,11 @@ class BaseBlockExplorer(object):
             raise Exception("Error: Need to open_session before executing get_balance")
         balance_url = "{}/{}".format(self._base_url_balance, public_address)
         bitcoin_balance_text = self.session.get(balance_url).text
-        bitcoin_balance = self.text_to_float(bitcoin_balance_text)
+        try:
+            bitcoin_balance = self.text_to_float(bitcoin_balance_text)
+        except Exception as e:
+            logging.error("Got invalid bitcoin balance response: '{}'".format(bitcoin_balance_text))
+            raise
         return bitcoin_balance
 
     @staticmethod
@@ -53,16 +61,14 @@ class BaseBlockExplorer(object):
         try:
             return float(text)
         except Exception:
-            logging.warning("Failed to convert string {} to float".format(text))
-            return None
+            raise
 
     @staticmethod
     def satoshi_to_btc(value):
         try:
             return value / 100000000.00000000
         except Exception:
-            logging.warning("Failed to convert value '{}' to BTC".format(value))
-            return None
+            raise
 
 
 class Abe(BaseBlockExplorer):
@@ -85,10 +91,18 @@ class Abe(BaseBlockExplorer):
         return BaseBlockExplorer.close_session(self)
 
     def get_balance(self, public_address):
-        return BaseBlockExplorer.get_balance(self, public_address)
+        try:
+            btc_balance = BaseBlockExplorer.get_balance(self, public_address)
+        except Exception as e:
+            raise
+        return btc_balance
 
     def get_received(self, public_address):
-        return BaseBlockExplorer.get_received(self, public_address)
+        try:
+            btc_balance = BaseBlockExplorer.get_received(self, public_address)
+        except Exception as e:
+            raise
+        return btc_balance
 
 
 class BlockchainInfo(BaseBlockExplorer):
@@ -109,11 +123,21 @@ class BlockchainInfo(BaseBlockExplorer):
         return BaseBlockExplorer.close_session(self)
 
     def get_balance(self, public_address):
+        logging.debug("Sleeping {} seconds before making API call".format(self._api_limit_seconds))
         time.sleep(self._api_limit_seconds)
-        balance = BaseBlockExplorer.get_balance(self, public_address)
-        return self.satoshi_to_btc(balance)
+        try:
+            balance = BaseBlockExplorer.get_balance(self, public_address)
+            btc_balance = self.satoshi_to_btc(balance)
+        except Exception as e:
+            raise
+        return btc_balance
 
     def get_received(self, public_address):
+        logging.debug("Sleeping {} seconds before making API call".format(self._api_limit_seconds))
         time.sleep(self._api_limit_seconds)
-        balance = BaseBlockExplorer.get_received(self, public_address)
-        return self.satoshi_to_btc(balance)
+        try:
+            received = BaseBlockExplorer.get_received(self, public_address)
+            btc_received = self.satoshi_to_btc(received)
+        except Exception as e:
+            raise
+        return btc_received
