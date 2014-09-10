@@ -7,6 +7,7 @@ A python script that performs a bruteforce dictionary attack on brainwallets. It
  to see the current balance for the bitcoin address.
 
 #Requirements
+* Dictionary file in UTF-8 format (***other formats NOT SUPPORTED***)
 * Python 2.7 (***3.x NOT SUPPORTED***), requests, coinkit
 <pre>
 pip install -r requirements.txt
