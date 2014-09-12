@@ -12,6 +12,8 @@ class BaseBlockExplorer(object):
         self._base_url = None
         self._base_url_received = None
         self._base_url_balance = None
+        self._received_suffix = '' #allow derived classes not to set this
+        self._balance_suffix = ''
 
     @abstractmethod
     def open_session(self):
@@ -33,7 +35,8 @@ class BaseBlockExplorer(object):
         logging.debug("Getting received bitcoins for public address {}".format(public_address))
         if not self.session:
             raise Exception("Error: Need to open_session first before executing get_received")
-        received_url = "{}/{}".format(self._base_url_received, public_address)
+        received_url = "{}/{}{}".format(self._base_url_received, public_address, self._received_suffix)
+        logging.debug("requesting data from {}".format(received_url))
         bitcoins_received_text = self.session.get(received_url).text
         try:
             bitcoins_received = self.text_to_float(bitcoins_received_text)
@@ -47,7 +50,8 @@ class BaseBlockExplorer(object):
         logging.debug("Getting balance for public address {}".format(public_address))
         if not self.session:
             raise Exception("Error: Need to open_session before executing get_balance")
-        balance_url = "{}/{}".format(self._base_url_balance, public_address)
+        balance_url = "{}/{}{}".format(self._base_url_balance, public_address, self._balance_suffix)
+        logging.debug("requesting data from {}".format(balance_url))
         bitcoin_balance_text = self.session.get(balance_url).text
         try:
             bitcoin_balance = self.text_to_float(bitcoin_balance_text)
@@ -135,6 +139,39 @@ class BlockchainInfo(BaseBlockExplorer):
     def get_received(self, public_address):
         logging.debug("Sleeping {} seconds before making API call".format(self._api_limit_seconds))
         time.sleep(self._api_limit_seconds)
+        try:
+            received = BaseBlockExplorer.get_received(self, public_address)
+            btc_received = self.satoshi_to_btc(received)
+        except Exception as e:
+            raise
+        return btc_received
+
+class Insight(BaseBlockExplorer):
+    STRING_TYPE = "insight"
+
+    def __init__(self):
+        BaseBlockExplorer.__init__(self)
+        self._base_url = "https://insight.bitpay.com"
+        self._base_url_received = "{}/api/addr".format(self._base_url)
+        self._base_url_balance = "{}/api/addr".format(self._base_url)
+        self._received_suffix = "/totalReceived"
+        self._balance_suffix = "/balance"
+
+    def open_session(self):
+        return BaseBlockExplorer.open_session(self)
+
+    def close_session(self):
+        return BaseBlockExplorer.close_session(self)
+
+    def get_balance(self, public_address):
+        try:
+            balance = BaseBlockExplorer.get_balance(self, public_address)
+            btc_balance = self.satoshi_to_btc(balance)
+        except Exception as e:
+            raise
+        return btc_balance
+
+    def get_received(self, public_address):
         try:
             received = BaseBlockExplorer.get_received(self, public_address)
             btc_received = self.satoshi_to_btc(received)
