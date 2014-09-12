@@ -3,7 +3,7 @@ bruteforce-bitcoin-brainwallet
 
 A python script that performs a bruteforce dictionary attack on brainwallets. It takes a dictionary input file
  and converts each word into a bitcoin address. A lookup of this address is done either using a local [Abe](https://github.com/jtobey/bitcoin-abe)
- instance or blockchain.info to see if any bitcoins have ever been received by this address. If so, it will do one more check
+ instance, blockchain.info, or insight.bitpay.com to see if any bitcoins have ever been received by this address. If so, it will do one more check
  to see the current balance for the bitcoin address.
 
 #Requirements
@@ -22,7 +22,7 @@ A script to perform bruteforce dictionary attacks on brainwallets.
 
 optional arguments:
   -h, --help      show this help message and exit
-  -t TYPE         Blockchain lookup type (abe|blockchaininfo)
+  -t TYPE         Blockchain lookup type (abe|blockchaininfo|insight)
   -d DICT_FILE    Dictionary file (e.g. dictionary.txt)
   -o OUTPUT_FILE  Output file (e.g. output.txt)
   -s SERVER       Abe host address (e.g. localhost)
@@ -43,7 +43,7 @@ python bbb.py -t abe -d dictionary.txt -o found.txt -s 127.0.0.1 -p 2751 -c Bitc
 2014-04-03 21:24:38,490 INFO   line 101  a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
 ```
 
-#Blockchain.info Example
+#Blockchain.info Example (note: 10 second wait between API calls)
 ```
 python bbb.py -t blockchaininfo -d dictionary.txt -o found.txt
 2014-04-03 21:38:48,893 INFO   line 100  Note there is a 10 second wait between each API call to respect posted limits
@@ -54,4 +54,19 @@ python bbb.py -t blockchaininfo -d dictionary.txt -o found.txt
 2014-04-03 21:38:49,673 INFO   line 72   Opening output file found.txt for writing
 2014-04-03 21:38:49,673 INFO   line 75   dictionary word, received bitcoins, wallet address, private address, current balance
 2014-04-03 21:40:02,313 INFO   line 101  a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
+```
+
+#Insight Example
+```
+python bbb.py -t insight -d dictionary.txt -o found.txt
+2014-09-11 20:34:17,863 INFO   line 62   Opening session for insight
+2014-09-11 20:34:17,863 INFO   line 20   Opening new session to https://insight.bitpay.com
+2014-09-11 20:34:17,876 INFO   line 696  Starting new HTTPS connection (1): insight.bitpay.com
+2014-09-11 20:34:18,419 INFO   line 67   Opening dictionary file dictionary.txt and validating encoding is utf-8
+2014-09-11 20:34:18,419 INFO   line 78   Opening dictionary file dictionary.txt for reading
+2014-09-11 20:34:18,419 INFO   line 81   Opening file with encoding utf-8
+2014-09-11 20:34:18,419 INFO   line 90   Opening output file found4.txt for writing
+2014-09-11 20:34:18,419 INFO   line 93   dictionary word, received bitcoins, wallet address, private address, current balance
+2014-09-11 20:34:22,654 INFO   line 153  Found used brainwallet: a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
+
 ```
