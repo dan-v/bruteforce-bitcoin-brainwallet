@@ -5,7 +5,7 @@ import argparse
 import logging
 import time
 from lib.blockchain import Abe, BlockchainInfo, Insight
-from lib.brainwallet import BrainWallet
+from lib.wallet import Wallet
 
 def main():
     # Script argument parsing
@@ -13,6 +13,8 @@ def main():
     parser.add_argument('-t', action='store', dest='type',
                         help='Blockchain lookup type ({}|{}|{})'
                         .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE, Insight.STRING_TYPE), required=True)
+    parser.add_argument('-b', action='store', dest='buffer', 
+                        help='how many addresses to check in each api call request', required=False)
     parser.add_argument('-d', action='store', dest='dict_file',
                         help='Dictionary file (e.g. dictionary.txt)', required=True)
     parser.add_argument('-o', action='store', dest='output_file',
@@ -23,6 +25,8 @@ def main():
                         help='Abe port (e.g. 2751)')
     parser.add_argument('-c', action='store', dest='chain',
                         help='Abe chain string (e.g. Bitcoin)')
+    parser.add_argument('-k', action='store_true', dest='is_private_key', default=False,
+                        help='treat each word as a hex or wif encoded private key, not as brain wallet')
     parser.add_argument('--version', action='version', version='%(prog)s 1.1')
     args = parser.parse_args()
 
@@ -53,7 +57,7 @@ def main():
     elif args.type == BlockchainInfo.STRING_TYPE:
         blockexplorer = BlockchainInfo()
     elif args.type == Insight.STRING_TYPE:
-		blockexplorer = Insight()
+        blockexplorer = Insight()
     else:
         logging.error("Invalid lookup type specified '{}'".format(args.type))
         sys.exit(1)
@@ -103,12 +107,12 @@ def main():
             continue
 
         # Print each word since this is rate limited
-        if args.type == BlockchainInfo.STRING_TYPE:
-            logging.info(u"Checking brainwallet '%s'" % dictionary_word)
+        if args.type == BlockchainInfo.STRING_TYPE or args.type == Insight.STRING_TYPE:
+            logging.info(u"Checking wallet '%s'" % dictionary_word)
 
-        # Create brainwallet
+        # Create wallet
         try:
-            brain_wallet = BrainWallet(dictionary_word)
+            wallet = Wallet(dictionary_word(), args.is_private_key)
         except Exception as e:
             continue
 
@@ -118,7 +122,7 @@ def main():
         sleep_seconds = 10
         while retry < retry_count:
             try:
-                received_bitcoins = blockexplorer.get_received(brain_wallet.address)
+                received_bitcoins = blockexplorer.get_received(wallet.address)
                 break
             except Exception as e:
                 logging.warning("Failed to get proper response for received bitcoins. Retry in {} seconds.".format(sleep_seconds))
@@ -137,7 +141,7 @@ def main():
         sleep_seconds = 15
         while retry < retry_count:
             try:
-                current_balance = blockexplorer.get_balance(brain_wallet.address)
+                current_balance = blockexplorer.get_balance(wallet.address)
                 break
             except Exception as e:
                 logging.warning("Failed to get proper response for balance. Retry in {} seconds.".format(sleep_seconds))
@@ -148,8 +152,8 @@ def main():
             continue
 
         # Output results
-        output = 'Found used brainwallet: {},{:.8f},{},{},{:.8f}'.format(dictionary_word, received_bitcoins, brain_wallet.address,
-                                                    brain_wallet.private_key, current_balance)
+        output = 'Found used wallet: {},{:.8f},{},{},{:.8f}'.format(dictionary_word, received_bitcoins, wallet.address,
+                                                    wallet.private_key, current_balance)
         logging.info(output)
         f_found_addresses.write(output + '\n')
 
