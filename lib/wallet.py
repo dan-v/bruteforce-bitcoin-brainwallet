@@ -3,14 +3,14 @@ import logging
 
 
 class Wallet:
-    def __init__(self, passphrase, isKey = False):
+    def __init__(self, passphrase, is_private_key = False):
         self.passphrase = passphrase
         self.address = None
         self.public_key = None
         self.private_key = None
         try:
-            if isKey:
-                keypair = BitcoinKeypair.from_private_key(passphrase)
+            if is_private_key:
+                keypair = BitcoinKeypair.from_private_key(self.passphrase.encode('ascii'))
             else:
                 keypair = BitcoinKeypair.from_passphrase(self.passphrase)
             self.address = keypair.address()

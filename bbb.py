@@ -105,12 +105,12 @@ def main():
             continue
 
         # Print each word since this is rate limited
-        if args.type == BlockchainInfo.STRING_TYPE or args.type == Insight.STRING_TYPE:
+        if args.type == BlockchainInfo.STRING_TYPE:
             logging.info(u"Checking wallet '%s'" % dictionary_word)
 
         # Create wallet
         try:
-            wallet = Wallet(dictionary_word(), args.is_private_key)
+            wallet = Wallet(dictionary_word, args.is_private_key)
         except Exception as e:
             continue
 
