@@ -13,8 +13,6 @@ def main():
     parser.add_argument('-t', action='store', dest='type',
                         help='Blockchain lookup type ({}|{}|{})'
                         .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE, Insight.STRING_TYPE), required=True)
-    parser.add_argument('-b', action='store', dest='buffer', 
-                        help='how many addresses to check in each api call request', required=False)
     parser.add_argument('-d', action='store', dest='dict_file',
                         help='Dictionary file (e.g. dictionary.txt)', required=True)
     parser.add_argument('-o', action='store', dest='output_file',
