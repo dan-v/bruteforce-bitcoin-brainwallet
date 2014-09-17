@@ -70,3 +70,20 @@ python bbb.py -t insight -d dictionary.txt -o found.txt
 2014-09-11 20:34:22,654 INFO   line 153  Found used brainwallet: a,0.01000000,1HUBHMij46Hae75JPdWjeZ5Q7KaL7EFRSD,ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb,0.00000000
 
 ```
+
+#private key example (also known as secret exponent, mixed hex and wif format)
+```
+python bbb.py -d keys.txt -t insight -o found.txt -k
+2014-09-16 12:13:55,301 INFO   line 64   Opening session for insight
+2014-09-16 12:13:55,301 INFO   line 20   Opening new session to https://insight.bitpay.com
+2014-09-16 12:13:55,338 INFO   line 696  Starting new HTTPS connection (1): insight.bitpay.com
+2014-09-16 12:14:09,152 INFO   line 69   Opening dictionary file keys.txt and validating encoding is utf-8
+2014-09-16 12:14:09,153 INFO   line 80   Opening dictionary file keys.txt for reading
+2014-09-16 12:14:09,154 INFO   line 83   Opening file with encoding utf-8
+2014-09-16 12:14:09,155 INFO   line 92   Opening output file found.txt for writing
+2014-09-16 12:14:09,155 INFO   line 95   dictionary word, received bitcoins, wallet address, private address, current balance
+2014-09-16 12:14:23,951 INFO   line 155  Found used wallet: 6d88fd5f906a89858aca2a963d82d6e36cdf409871a88f6e79749ba21f021421,0.00005460,18XHQxYKXeXdiJzi5Z5XTojzeY3xHAoLCA,6d88fd5f906a89858aca2a963d82d6e36cdf409871a88f6e79749ba21f021421,0.00000000
+2014-09-16 12:14:37,083 INFO   line 155  Found used wallet: 5JPqywvhpz2QqvLhT54htZZAZ1A3dwh4MGhjoLEH9mMhgReyHGu,0.00005460,1N61ZkMkCKbAWBQzgucPZNLcN591rMzVd,4c32f19462ec62f9edabb65fd838307aed4683b1d506a702bd648e9a779a3cc4,0.00000000
+2014-09-16 12:14:48,654 INFO   line 155  Found used wallet: c94ad2d92135458a0faebbb62b16af3012b6179f1128a2e09a3848172b3ad76b,0.00005460,14Y66Et3Ew2ddq7QwpeLBbQ761b7rrCz7H,c94ad2d92135458a0faebbb62b16af3012b6179f1128a2e09a3848172b3ad76b,0.00000000
+
+```
