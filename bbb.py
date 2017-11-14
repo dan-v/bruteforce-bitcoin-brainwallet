@@ -4,7 +4,7 @@ import sys
 import argparse
 import logging
 import time
-from lib.blockchain import Abe, BlockchainInfo, Insight
+from lib.blockchain import Abe, BlockchainInfo, Insight, BlockExplorerCom
 from lib.wallet import Wallet
 
 def main():
@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description='A script to perform bruteforce dictionary attacks on brainwallets.')
     parser.add_argument('-t', action='store', dest='type',
                         help='Blockchain lookup type ({}|{}|{})'
-                        .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE, Insight.STRING_TYPE), required=True)
+                        .format(Abe.STRING_TYPE, BlockchainInfo.STRING_TYPE, Insight.STRING_TYPE, BlockExplorerCom.STRING_TYPE), required=True)
     parser.add_argument('-d', action='store', dest='dict_file',
                         help='Dictionary file (e.g. dictionary.txt)', required=True)
     parser.add_argument('-o', action='store', dest='output_file',
@@ -33,7 +33,7 @@ def main():
                         format='%(asctime)s %(levelname)-6s line %(lineno)-4s %(message)s')
 
     # Check valid blockchain lookup type is specified
-    if args.type != BlockchainInfo.STRING_TYPE and args.type != Abe.STRING_TYPE and args.type != Insight.STRING_TYPE:
+    if args.type != BlockchainInfo.STRING_TYPE and args.type != Abe.STRING_TYPE and args.type != Insight.STRING_TYPE and args.type != BlockExplorerCom.STRING_TYPE:
         logging.error("Invalid -t option specified.")
         sys.exit(1)
 
@@ -56,6 +56,8 @@ def main():
         blockexplorer = BlockchainInfo()
     elif args.type == Insight.STRING_TYPE:
         blockexplorer = Insight()
+    elif args.type == BlockExplorerCom.STRING_TYPE:
+        blockexplorer = BlockExplorerCom()
     else:
         logging.error("Invalid lookup type specified '{}'".format(args.type))
         sys.exit(1)
@@ -64,7 +66,7 @@ def main():
     logging.info("Opening session for {}".format(args.type))
     blockexplorer.open_session()
 
-    # Open dictionary file and validate encoding
+    # Open dictionary file and encoding
     dictionary_encoding = "utf-8"
     logging.info("Opening dictionary file {} and validating encoding is {}".format(args.dict_file, dictionary_encoding))
     try:
