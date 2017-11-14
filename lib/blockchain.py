@@ -116,7 +116,7 @@ class BlockchainInfo(BaseBlockExplorer):
         BaseBlockExplorer.__init__(self)
         self._api_limit_seconds = 10
         logging.info("Note there is a {} second wait between each API call to respect posted limits".format(self._api_limit_seconds))
-        self._base_url = "http://blockchain.info"
+        self._base_url = "https://blockchain.info"
         self._base_url_received = "{}/q/getreceivedbyaddress".format(self._base_url)
         self._base_url_balance = "{}/q/addressbalance".format(self._base_url)
 
@@ -145,6 +145,41 @@ class BlockchainInfo(BaseBlockExplorer):
         except Exception as e:
             raise
         return btc_received
+
+class BlockExplorerCom(BaseBlockExplorer):
+    STRING_TYPE = "blockexplorercom"
+
+    def __init__(self):
+        BaseBlockExplorer.__init__(self)
+        self._base_url = "https://blockexplorer.com"
+        self._base_url_received = "{}/api/addr".format(self._base_url)
+        self._base_url_balance = "{}/api/addr".format(self._base_url)
+        self._received_suffix = "/totalReceived"
+        self._balance_suffix = "/balance"
+
+
+    def open_session(self):
+        return BaseBlockExplorer.open_session(self)
+
+    def close_session(self):
+        return BaseBlockExplorer.close_session(self)
+
+    def get_balance(self, public_address):
+        try:
+            balance = BaseBlockExplorer.get_balance(self, public_address)
+            btc_balance = self.satoshi_to_btc(balance)
+        except Exception as e:
+            raise
+        return btc_balance
+
+    def get_received(self, public_address):
+        try:
+            received = BaseBlockExplorer.get_received(self, public_address)
+            btc_received = self.satoshi_to_btc(received)
+        except Exception as e:
+            raise
+        return btc_received
+
 
 class Insight(BaseBlockExplorer):
     STRING_TYPE = "insight"

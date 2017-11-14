@@ -21,7 +21,7 @@ A script to perform bruteforce dictionary attacks on brainwallets.
 
 optional arguments:
   -h, --help      show this help message and exit
-  -t TYPE         Blockchain lookup type (abe|blockchaininfo|insight)
+  -t TYPE         Blockchain lookup type (abe|blockchaininfo|insight|blockexplorer)
   -d DICT_FILE    Dictionary file (e.g. dictionary.txt)
   -o OUTPUT_FILE  Output file (e.g. output.txt)
   -s SERVER       Abe server address (e.g. localhost)
