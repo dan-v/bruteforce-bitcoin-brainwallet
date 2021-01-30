@@ -1,6 +1,8 @@
 bruteforce-bitcoin-brainwallet
 ==============================
 
+<b>This project is no longer maintained.</b>
+
 A python script that performs a bruteforce dictionary attack on brainwallets. It takes a dictionary input file and converts each line into a bitcoin address. A lookup of this address is done either using a local [Abe](https://github.com/jtobey/bitcoin-abe)
  instance, blockchain.info, or insight.bitpay.com to see if any bitcoins have ever been received by this address. If so, it will do one more check
  to see the current balance for the bitcoin address.
